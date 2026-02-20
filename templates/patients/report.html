@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <!-- Header Card -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-success text-white text-center">
+                <h4>🏥 Your Risk Report</h4>
+                <small>Generated on {{ report.generated_at|date:"d M Y, h:i A" }}</small>
+            </div>
+            <div class="card-body text-center">
+                <h6 class="text-muted">Overall Risk Score</h6>
+                <h1 class="display-3 fw-bold
+                    {% if report.overall_score < 30 %}text-success
+                    {% elif report.overall_score < 60 %}text-warning
+                    {% else %}text-danger{% endif %}">
+                    {{ report.overall_score }}<small class="fs-4">/100</small>
+                </h1>
+                <div class="progress mb-3" style="height: 20px;">
+                    <div class="progress-bar
+                        {% if report.overall_score < 30 %}bg-success
+                        {% elif report.overall_score < 60 %}bg-warning
+                        {% else %}bg-danger{% endif %}"
+                        style="width: {{ report.overall_score }}%">
+                    </div>
+                </div>
+                {% if report.refer_for_test %}
+                <div class="alert alert-danger">
+                    ⚠️ <strong>Referral Recommended:</strong>
+                    Please visit your nearest PHC for lab tests immediately.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Disease Risk Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm
+                    {% if report.diabetes_risk == 'low' %}border-success
+                    {% elif report.diabetes_risk == 'moderate' %}border-warning
+                    {% else %}border-danger{% endif %}">
+                    <div class="card-body">
+                        <h6>🩸 Diabetes Risk</h6>
+                        <span class="badge fs-6
+                            {% if report.diabetes_risk == 'low' %}bg-success
+                            {% elif report.diabetes_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ report.diabetes_risk|capfirst }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm
+                    {% if report.hypertension_risk == 'low' %}border-success
+                    {% elif report.hypertension_risk == 'moderate' %}border-warning
+                    {% else %}border-danger{% endif %}">
+                    <div class="card-body">
+                        <h6>💉 Hypertension Risk</h6>
+                        <span class="badge fs-6
+                            {% if report.hypertension_risk == 'low' %}bg-success
+                            {% elif report.hypertension_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ report.hypertension_risk|capfirst }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm
+                    {% if report.heart_risk == 'low' %}border-success
+                    {% elif report.heart_risk == 'moderate' %}border-warning
+                    {% else %}border-danger{% endif %}">
+                    <div class="card-body">
+                        <h6>❤️ Heart Disease Risk</h6>
+                        <span class="badge fs-6
+                            {% if report.heart_risk == 'low' %}bg-success
+                            {% elif report.heart_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ report.heart_risk|capfirst }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommendation -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">📋 Recommendation</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">{{ report.recommendation }}</p>
+            </div>
+        </div>
+
+        <!-- Patient Info -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">👤 Your Profile</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <small class="text-muted">Age</small>
+                        <h5>{{ health_profile.age }} yrs</h5>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <small class="text-muted">Gender</small>
+                        <h5>{{ health_profile.gender|capfirst }}</h5>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <small class="text-muted">Weight</small>
+                        <h5>{{ health_profile.weight_kg }} kg</h5>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <small class="text-muted">BMI</small>
+                        <h5>{{ health_profile.bmi }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="row">
+            <div class="col-md-6 d-grid">
+                <a href="{% url 'questionnaire' %}" class="btn btn-outline-success">
+                    🔄 Retake Questionnaire
+                </a>
+            </div>
+            <div class="col-md-6 d-grid">
+                <a href="{% url 'logout' %}" class="btn btn-outline-secondary">
+                    Logout
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

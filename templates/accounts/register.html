@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white text-center">
+                <h4>Create Account</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>First Name</label>
+                            {{ form.first_name }}
+                            <small class="text-danger">{{ form.first_name.errors }}</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Last Name</label>
+                            {{ form.last_name }}
+                            <small class="text-danger">{{ form.last_name.errors }}</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Username</label>
+                        {{ form.username }}
+                        <small class="text-danger">{{ form.username.errors }}</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Email</label>
+                        {{ form.email }}
+                        <small class="text-danger">{{ form.email.errors }}</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Password</label>
+                            {{ form.password }}
+                            <small class="text-danger">{{ form.password.errors }}</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Confirm Password</label>
+                            {{ form.confirm_password }}
+                            <small class="text-danger">{{ form.confirm_password.errors }}</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Role</label>
+                        {{ form.role }}
+                        <small class="text-danger">{{ form.role.errors }}</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Phone</label>
+                        {{ form.phone }}
+                        <small class="text-danger">{{ form.phone.errors }}</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label>Village</label>
+                            {{ form.village }}
+                            <small class="text-danger">{{ form.village.errors }}</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>District</label>
+                            {{ form.district }}
+                            <small class="text-danger">{{ form.district.errors }}</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label>State</label>
+                            {{ form.state }}
+                            <small class="text-danger">{{ form.state.errors }}</small>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Register</button>
+                    </div>
+                </form>
+                <div class="text-center mt-3">
+                    Already have an account? <a href="{% url 'login' %}">Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

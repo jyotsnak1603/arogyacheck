@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">👤 Register New Patient</h5>
+                <small>Fill all details on behalf of the patient</small>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- Patient Identity -->
+                    <h6 class="text-success border-bottom pb-2 mb-3">
+                        Patient Identity
+                    </h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label>First Name</label>
+                            {{ user_form.first_name }}
+                            <small class="text-danger">
+                                {{ user_form.first_name.errors }}
+                            </small>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Last Name</label>
+                            {{ user_form.last_name }}
+                            <small class="text-danger">
+                                {{ user_form.last_name.errors }}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label>Username</label>
+                            {{ user_form.username }}
+                            <small class="text-danger">
+                                {{ user_form.username.errors }}
+                            </small>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Phone</label>
+                            {{ user_form.phone }}
+                            <small class="text-danger">
+                                {{ user_form.phone.errors }}
+                            </small>
+                        </div>
+                        <div class="col-md-4">
+                            <label>Email</label>
+                            {{ user_form.email }}
+                            <small class="text-danger">
+                                {{ user_form.email.errors }}
+                            </small>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label>Password</label>
+                            {{ user_form.password }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>Confirm Password</label>
+                            {{ user_form.confirm_password }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label>Village</label>
+                            {{ user_form.village }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>District</label>
+                            {{ user_form.district }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>State</label>
+                            {{ user_form.state }}
+                        </div>
+                    </div>
+
+                    <!-- Health Profile -->
+                    <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
+                        Physical Information
+                    </h6>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <label>Age</label>
+                            {{ profile_form.age }}
+                        </div>
+                        <div class="col-md-3">
+                            <label>Gender</label>
+                            {{ profile_form.gender }}
+                        </div>
+                        <div class="col-md-3">
+                            <label>Weight (kg)</label>
+                            {{ profile_form.weight_kg }}
+                        </div>
+                        <div class="col-md-3">
+                            <label>Height (cm)</label>
+                            {{ profile_form.height_cm }}
+                        </div>
+                    </div>
+
+                    <!-- Questionnaire -->
+                    <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
+                        🏃 Lifestyle
+                    </h6>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label>Physical Activity</label>
+                            {{ questionnaire_form.physical_activity }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>Diet Type</label>
+                            {{ questionnaire_form.diet_type }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>Sleep Hours/Night</label>
+                            {{ questionnaire_form.sleep_hours }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ questionnaire_form.smoking }}
+                                <label class="form-check-label">Smokes?</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ questionnaire_form.alcohol }}
+                                <label class="form-check-label">Consumes Alcohol?</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
+                        🤒 Symptoms
+                    </h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.frequent_thirst }}
+                                <label class="form-check-label">Frequent Thirst</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.frequent_urination }}
+                                <label class="form-check-label">Frequent Urination</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.fatigue }}
+                                <label class="form-check-label">Fatigue</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.blurred_vision }}
+                                <label class="form-check-label">Blurred Vision</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.chest_pain }}
+                                <label class="form-check-label">Chest Pain</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.shortness_of_breath }}
+                                <label class="form-check-label">Shortness of Breath</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.numbness_in_feet }}
+                                <label class="form-check-label">Numbness in Feet</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
+                        👨‍👩‍👧 Family History
+                    </h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.family_diabetes }}
+                                <label class="form-check-label">Diabetes</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.family_hypertension }}
+                                <label class="form-check-label">Hypertension</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.family_heart_disease }}
+                                <label class="form-check-label">Heart Disease</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.family_kidney_disease }}
+                                <label class="form-check-label">Kidney Disease</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
+                        💊 Existing Conditions
+                    </h6>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.already_diabetic }}
+                                <label class="form-check-label">Already Diabetic</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                {{ questionnaire_form.already_hypertensive }}
+                                <label class="form-check-label">Already Hypertensive</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            Register Patient & Generate Report
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="mt-3">
+            <a href="{% url 'asha_dashboard' %}" class="btn btn-outline-secondary">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

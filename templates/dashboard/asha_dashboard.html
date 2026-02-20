@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="text-success">👩‍⚕️ ASHA Worker Dashboard</h4>
+        <p class="text-muted">Hello {{ request.user.first_name }}, here are your registered patients.</p>
+    </div>
+    <div class="col text-end">
+        <a href="{% url 'register_patient' %}" class="btn btn-success">
+            + Register New Patient
+        </a>
+    </div>
+</div>
+
+{% if patients_data %}
+<div class="card shadow">
+    <div class="card-header bg-light">
+        <strong>Your Patients ({{ patients_data|length }})</strong>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-success">
+                <tr>
+                    <th>Name</th>
+                    <th>Village</th>
+                    <th>Phone</th>
+                    <th>Risk Score</th>
+                    <th>Diabetes</th>
+                    <th>Hypertension</th>
+                    <th>Heart</th>
+                    <th>Refer?</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in patients_data %}
+                <tr>
+                    <td>{{ item.profile.user.get_full_name }}</td>
+                    <td>{{ item.profile.village }}</td>
+                    <td>{{ item.profile.phone }}</td>
+                    {% if item.report %}
+                        <td>
+                            <span class="badge
+                                {% if item.report.overall_score < 30 %}bg-success
+                                {% elif item.report.overall_score < 60 %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.overall_score }}/100
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.diabetes_risk == 'low' %}bg-success
+                                {% elif item.report.diabetes_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.diabetes_risk|capfirst }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.hypertension_risk == 'low' %}bg-success
+                                {% elif item.report.hypertension_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.hypertension_risk|capfirst }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.heart_risk == 'low' %}bg-success
+                                {% elif item.report.heart_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.heart_risk|capfirst }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if item.report.refer_for_test %}
+                                <span class="badge bg-danger">⚠️ Yes</span>
+                            {% else %}
+                                <span class="badge bg-success">No</span>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td colspan="5">
+                            <span class="text-muted">No report yet</span>
+                        </td>
+                    {% endif %}
+                    <td>
+                        <a href="{% url 'patient_detail_asha' item.profile.id %}"
+                           class="btn btn-sm btn-outline-success">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="card shadow">
+    <div class="card-body text-center py-5">
+        <h5 class="text-muted">No patients registered yet.</h5>
+        <p class="text-muted">Start by registering your first patient.</p>
+        <a href="{% url 'register_patient' %}" class="btn btn-success">
+            + Register First Patient
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

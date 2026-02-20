@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            ← Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Patient Info -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">👤 {{ patient_profile.user.get_full_name }}</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <small class="text-muted">Phone</small>
+                <p>{{ patient_profile.phone }}</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">Village</small>
+                <p>{{ patient_profile.village }}</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">District</small>
+                <p>{{ patient_profile.district }}</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">State</small>
+                <p>{{ patient_profile.state }}</p>
+            </div>
+        </div>
+        {% if health_profile %}
+        <div class="row">
+            <div class="col-md-3">
+                <small class="text-muted">Age</small>
+                <p>{{ health_profile.age }} yrs</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">Gender</small>
+                <p>{{ health_profile.gender|capfirst }}</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">Weight</small>
+                <p>{{ health_profile.weight_kg }} kg</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">BMI</small>
+                <p>{{ health_profile.bmi }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Report History -->
+<h5 class="mb-3">📋 Report History</h5>
+{% if all_reports %}
+    {% for item in all_reports %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <span>{{ item.questionnaire.submitted_at|date:"d M Y, h:i A" }}</span>
+            <div class="d-flex gap-2 align-items-center">
+                <span class="badge
+                    {% if item.report.overall_score < 30 %}bg-success
+                    {% elif item.report.overall_score < 60 %}bg-warning text-dark
+                    {% else %}bg-danger{% endif %}">
+                    Score: {{ item.report.overall_score }}/100
+                </span>
+                {% if item.report.reviewed_by_doctor %}
+                    <span class="badge bg-success">✓ Reviewed</span>
+                {% else %}
+                    <form method="POST" class="d-inline">
+                        {% csrf_token %}
+                        <input type="hidden" name="report_id" value="{{ item.report.id }}">
+                        <button type="submit" class="btn btn-sm btn-outline-success">
+                            Mark Reviewed
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row text-center mb-3">
+                <div class="col-md-3">
+                    <small class="text-muted">Diabetes</small>
+                    <p>
+                        <span class="badge
+                            {% if item.report.diabetes_risk == 'low' %}bg-success
+                            {% elif item.report.diabetes_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ item.report.diabetes_risk|capfirst }}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Hypertension</small>
+                    <p>
+                        <span class="badge
+                            {% if item.report.hypertension_risk == 'low' %}bg-success
+                            {% elif item.report.hypertension_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ item.report.hypertension_risk|capfirst }}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Heart</small>
+                    <p>
+                        <span class="badge
+                            {% if item.report.heart_risk == 'low' %}bg-success
+                            {% elif item.report.heart_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {{ item.report.heart_risk|capfirst }}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">Referral</small>
+                    <p>
+                        {% if item.report.refer_for_test %}
+                            <span class="badge bg-danger">⚠️ Required</span>
+                        {% else %}
+                            <span class="badge bg-success">Not Required</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <div class="alert alert-light mb-0">
+                <strong>Recommendation:</strong> {{ item.report.recommendation }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card shadow-sm">
+        <div class="card-body text-center text-muted py-4">
+            No reports available for this patient yet.
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

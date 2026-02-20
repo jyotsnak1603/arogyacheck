@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="text-success">👨‍⚕️ Doctor Dashboard</h4>
+        <p class="text-muted">Hello Dr. {{ request.user.first_name }}, here are all registered patients.</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Filter by Risk Level</label>
+                <select name="risk" class="form-select">
+                    <option value="">All Risk Levels</option>
+                    <option value="low" {% if risk_filter == 'low' %}selected{% endif %}>
+                        Low
+                    </option>
+                    <option value="moderate" {% if risk_filter == 'moderate' %}selected{% endif %}>
+                        Moderate
+                    </option>
+                    <option value="high" {% if risk_filter == 'high' %}selected{% endif %}>
+                        High
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Filter by District</label>
+                <select name="district" class="form-select">
+                    <option value="">All Districts</option>
+                    {% for district in districts %}
+                    <option value="{{ district }}"
+                        {% if district_filter == district %}selected{% endif %}>
+                        {{ district }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-success">Apply Filters</button>
+                <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary">
+                    Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-0 bg-light">
+            <div class="card-body">
+                <h3 class="text-success">{{ total }}</h3>
+                <small class="text-muted">Total Patients</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 bg-light">
+            <div class="card-body">
+                <h3 class="text-danger">
+                    {{ patients_data|length }}
+                </h3>
+                <small class="text-muted">Filtered Results</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patients Table -->
+{% if patients_data %}
+<div class="card shadow">
+    <div class="card-header bg-light">
+        <strong>Patient List ({{ patients_data|length }})</strong>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-success">
+                <tr>
+                    <th>Name</th>
+                    <th>Village</th>
+                    <th>District</th>
+                    <th>Age</th>
+                    <th>Risk Score</th>
+                    <th>Diabetes</th>
+                    <th>Hypertension</th>
+                    <th>Heart</th>
+                    <th>Refer?</th>
+                    <th>Reviewed?</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in patients_data %}
+                <tr>
+                    <td>{{ item.profile.user.get_full_name }}</td>
+                    <td>{{ item.profile.village }}</td>
+                    <td>{{ item.profile.district }}</td>
+                    <td>
+                        {% if item.profile.user.healthprofile %}
+                            {{ item.profile.user.healthprofile.age }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    {% if item.report %}
+                        <td>
+                            <span class="badge
+                                {% if item.report.overall_score < 30 %}bg-success
+                                {% elif item.report.overall_score < 60 %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.overall_score }}/100
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.diabetes_risk == 'low' %}bg-success
+                                {% elif item.report.diabetes_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.diabetes_risk|capfirst }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.hypertension_risk == 'low' %}bg-success
+                                {% elif item.report.hypertension_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.hypertension_risk|capfirst }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.heart_risk == 'low' %}bg-success
+                                {% elif item.report.heart_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.heart_risk|capfirst }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if item.report.refer_for_test %}
+                                <span class="badge bg-danger">⚠️ Yes</span>
+                            {% else %}
+                                <span class="badge bg-success">No</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.report.reviewed_by_doctor %}
+                                <span class="badge bg-success">✓ Done</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Pending</span>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td colspan="6">
+                            <span class="text-muted">No report yet</span>
+                        </td>
+                    {% endif %}
+                    <td>
+                        <a href="{% url 'doctor_patient_detail' item.profile.id %}"
+                           class="btn btn-sm btn-outline-success">
+                            View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card shadow">
+    <div class="card-body text-center py-5">
+        <h5 class="text-muted">No patients found.</h5>
+        <p class="text-muted">Try changing your filters.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

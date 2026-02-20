@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<div class="row justify-content-center text-center py-5">
+    <div class="col-md-8">
+        <h1 class="display-4 fw-bold text-success">🏥 ArogyaCheck</h1>
+        <p class="lead text-muted mt-3">
+            A rural disease risk screening platform for India.
+            No lab tests needed — just answer a few questions
+            and get your health risk report instantly.
+        </p>
+        <div class="mt-4 d-flex justify-content-center gap-3">
+            {% if request.user.is_authenticated %}
+                {% if request.user.userprofile.role == 'patient' %}
+                    <a href="{% url 'questionnaire' %}" class="btn btn-success btn-lg">
+                        Go to My Dashboard
+                    </a>
+                {% elif request.user.userprofile.role == 'asha' %}
+                    <a href="{% url 'asha_dashboard' %}" class="btn btn-success btn-lg">
+                        Go to My Dashboard
+                    </a>
+                {% elif request.user.userprofile.role == 'doctor' %}
+                    <a href="{% url 'doctor_dashboard' %}" class="btn btn-success btn-lg">
+                        Go to My Dashboard
+                    </a>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'register' %}" class="btn btn-success btn-lg">
+                    Get Started
+                </a>
+                <a href="{% url 'login' %}" class="btn btn-outline-success btn-lg">
+                    Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="row justify-content-center mt-4">
+    <div class="col-md-10">
+        <h4 class="text-center text-success mb-4">How It Works</h4>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 text-center p-3">
+                    <div class="fs-1 mb-3">📋</div>
+                    <h5>Fill Questionnaire</h5>
+                    <p class="text-muted small">
+                        Answer simple questions about your lifestyle,
+                        symptoms and family history. No lab tests needed.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 text-center p-3">
+                    <div class="fs-1 mb-3">⚙️</div>
+                    <h5>Get Risk Score</h5>
+                    <p class="text-muted small">
+                        Our engine instantly calculates your risk for
+                        diabetes, hypertension and heart disease.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm h-100 text-center p-3">
+                    <div class="fs-1 mb-3">👨‍⚕️</div>
+                    <h5>Doctor Reviews</h5>
+                    <p class="text-muted small">
+                        High risk patients are flagged for the PHC doctor
+                        who can review and refer for lab tests.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Who Is It For -->
+<div class="row justify-content-center mt-5">
+    <div class="col-md-10">
+        <h4 class="text-center text-success mb-4">Who Is It For</h4>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card border-success border-2 h-100 p-3">
+                    <h5>🧑‍🌾 Patients</h5>
+                    <p class="text-muted small">
+                        Rural citizens who want to know their health
+                        risk without visiting a hospital.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-success border-2 h-100 p-3">
+                    <h5>👩‍⚕️ ASHA Workers</h5>
+                    <p class="text-muted small">
+                        Field health workers who register and screen
+                        patients in their village on their behalf.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card border-success border-2 h-100 p-3">
+                    <h5>🏥 PHC Doctors</h5>
+                    <p class="text-muted small">
+                        Primary health centre doctors who monitor
+                        high risk patients and manage referrals.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-5 py-4 text-muted small">
+    ArogyaCheck — Built for Bharat 🇮🇳
+</div>
+
+{% endblock %}
