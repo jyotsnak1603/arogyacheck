@@ -40,6 +40,12 @@
                 </select>
             </div>
             <div class="col-md-4 d-flex align-items-end gap-2">
+                <div class="col-md-4">
+                    <label class="form-label">Search Patient</label>
+                    <input type="text" name="search" class="form-control"
+                        placeholder="Name or phone..."
+                        value="{{ search_query }}">
+                </div>
                 <button type="submit" class="btn btn-success">Apply Filters</button>
                 <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary">
                     Clear

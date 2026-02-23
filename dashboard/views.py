@@ -159,6 +159,7 @@ def doctor_dashboard(request):
     # Filters from URL query params
     risk_filter = request.GET.get('risk', '')
     district_filter = request.GET.get('district', '')
+    search_query = request.GET.get('search', '')
 
     patients_data = []
     for profile in all_patient_profiles:
@@ -183,6 +184,13 @@ def doctor_dashboard(request):
         if district_filter and profile.district.lower() != district_filter.lower():
             continue
 
+        # Apply search filter
+        if search_query:
+            full_name = profile.user.get_full_name().lower()
+            phone = profile.phone.lower()
+            if search_query.lower() not in full_name and search_query.lower() not in phone:
+                continue
+
         patients_data.append({
             'profile': profile,
             'report': report,
@@ -197,6 +205,7 @@ def doctor_dashboard(request):
         'patients_data': patients_data,
         'risk_filter': risk_filter,
         'district_filter': district_filter,
+        'search_query': search_query,
         'districts': districts,
         'total': len(patients_data),
     })
