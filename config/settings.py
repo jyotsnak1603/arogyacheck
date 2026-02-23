@@ -24,8 +24,8 @@ SECRET_KEY = 'django-insecure-gk_6i@ganyg88w--b=4vb^01+!9xfsu07d7^mz!u(3gpfz(_b#
 
 # SECURITY WARNING: don't run with debug turned on in production!
 import os
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
-
+# DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 
@@ -87,12 +87,14 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8}
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -137,3 +139,9 @@ DATABASES = {
         default=f'sqlite:///{BASE_DIR}/db.sqlite3'
     )
 }
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'jyotsnak1603@gmail.com'
+EMAIL_HOST_PASSWORD = 'scdmcpxfkhdxsfil'

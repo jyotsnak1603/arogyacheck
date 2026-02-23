@@ -22,6 +22,8 @@ class UserProfile(models.Model):
                                       blank=True,
                                       related_name='registered_patients'
                                       )
+    is_verified = models.BooleanField(default=False)
+    verification_token = models.CharField(max_length=100, blank=True, null=True)
 
     def __str__(self):
         return f"{self.user.username} - {self.role}"

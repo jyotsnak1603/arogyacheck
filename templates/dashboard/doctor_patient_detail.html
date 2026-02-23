@@ -72,12 +72,24 @@
                 </span>
                 {% if item.report.reviewed_by_doctor %}
                     <span class="badge bg-success">✓ Reviewed</span>
+                    {% if item.report.doctor_notes %}
+                    <div class="mt-2">
+                        <small class="text-muted">Doctor Notes:</small>
+                        <p class="mb-0 text-dark">{{ item.report.doctor_notes }}</p>
+                    </div>
+                    {% endif %}
                 {% else %}
-                    <form method="POST" class="d-inline">
+                    <form method="POST" class="mt-2">
                         {% csrf_token %}
                         <input type="hidden" name="report_id" value="{{ item.report.id }}">
+                        <div class="mb-2">
+                            <textarea name="doctor_notes" 
+                                      class="form-control form-control-sm" 
+                                      rows="2" 
+                                      placeholder="Add clinical notes (optional)..."></textarea>
+                        </div>
                         <button type="submit" class="btn btn-sm btn-outline-success">
-                            Mark Reviewed
+                            Mark Reviewed & Save Notes
                         </button>
                     </form>
                 {% endif %}

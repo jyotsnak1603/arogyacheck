@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from accounts.models import UserProfile
 from accounts.forms import RegisterForm
-from patients.models import HealthProfile, Questionnaire, RiskReport
+from patients.models import HealthProfile, Questionnaire, RiskReport, AuditLog
 from patients.forms import HealthProfileForm, QuestionnaireForm
 from patients.risk_engine import calculate_risk
 
@@ -106,6 +106,12 @@ def register_patient(request):
                 refer_for_test=result['refer_for_test'],
                 recommendation=result['recommendation'],
             )
+            AuditLog.objects.create(
+                action='register_patient',
+                performed_by=request.user,
+                patient=user,
+                details=f"Patient {user.get_full_name()} registered from {user.userprofile.village}") 
+            
             messages.success(request, f"Patient {user.first_name} registered successfully!")
             return redirect('asha_dashboard')
     else:
@@ -216,14 +222,24 @@ def doctor_patient_detail(request, patient_id):
         health_profile = None
         all_reports = []
 
-    # Mark as reviewed
+    # Mark as reviewed and doctor notes added
     if request.method == 'POST':
         report_id = request.POST.get('report_id')
+        notes = request.POST.get('doctor_notes', '')
         try:
             report = RiskReport.objects.get(id=report_id)
             report.reviewed_by_doctor = True
+            report.doctor_notes = notes
             report.save()
-            messages.success(request, "Patient marked as reviewed.")
+
+            AuditLog.objects.create(
+                action='mark_reviewed',
+                performed_by=request.user,
+                patient=patient_profile.user,
+                details=f"Report reviewed. Notes: {notes}"
+            )
+            
+            messages.success(request, "Notes saved and patient marked as reviewed.")
         except RiskReport.DoesNotExist:
             pass
         return redirect('doctor_patient_detail', patient_id=patient_id)

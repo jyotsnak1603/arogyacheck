@@ -92,6 +92,24 @@ class RiskReport(models.Model):
     refer_for_test = models.BooleanField(default=False)
     recommendation = models.TextField()
     reviewed_by_doctor = models.BooleanField(default=False)
+    doctor_notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.questionnaire.health_profile.patient.username} - Score {self.overall_score}"
+    
+
+class AuditLog(models.Model):
+    ACTION_CHOICES = [
+        ('register_patient', 'Registered Patient'),
+        ('submit_questionnaire', 'Submitted Questionnaire'),
+        ('mark_reviewed', 'Marked as Reviewed'),
+    ]
+    action = models.CharField(max_length=100, choices=ACTION_CHOICES)
+    performed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                related_name='audit_logs')
+    details = models.TextField(blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.performed_by} - {self.action} - {self.timestamp}"

@@ -2,6 +2,11 @@ from django import forms
 from django.contrib.auth.models import User
 from .models import UserProfile
 
+#Below 2 importing modules for Password Complexity
+
+from django.contrib.auth.password_validation import validate_password    
+from django.core.exceptions import ValidationError
+
 class RegisterForm(forms.Form):
     #USer fields
     first_name = forms.CharField(max_length=100,
@@ -40,7 +45,15 @@ class RegisterForm(forms.Form):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         confirm_password = cleaned_data.get('confirm_password')
+        
         if password and confirm_password:
             if password != confirm_password:
-                raise forms.ValidationError("Password does not match. Try again!")
+                raise forms.ValidationError("Passwords do not match.")
+            
+            try:
+                validate_password(password)
+            except ValidationError as e:
+                self.add_error('password', list(e.messages))
+
         return cleaned_data
+    

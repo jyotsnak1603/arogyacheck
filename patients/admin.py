@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import HealthProfile, Questionnaire, RiskReport
+from .models import HealthProfile, Questionnaire, RiskReport, AuditLog
 
 @admin.register(HealthProfile)
 class HealthProfileAdmin(admin.ModelAdmin):
@@ -28,3 +28,9 @@ class RiskReportAdmin(admin.ModelAdmin):
     
     readonly_fields = ['overall_score', 'diabetes_risk', 'hypertension_risk',
                        'heart_risk', 'refer_for_test', 'recommendation']
+    
+@admin.register(AuditLog)
+class AuditLogAdmin(admin.ModelAdmin):
+    list_display = ['performed_by', 'action', 'patient', 'timestamp']
+    list_filter = ['action', 'timestamp']
+    readonly_fields = ['performed_by', 'action', 'patient', 'details', 'timestamp']
