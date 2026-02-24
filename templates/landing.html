@@ -13,7 +13,11 @@
         </p>
         <div class="mt-4 d-flex justify-content-center gap-3">
             {% if request.user.is_authenticated %}
-                {% if request.user.userprofile.role == 'patient' %}
+                {% if request.user.is_superuser %}
+                    <a href="/admin/" class="btn btn-success btn-lg">
+                        Go to Admin
+                    </a>
+                {% elif request.user.userprofile.role == 'patient' %}
                     <a href="{% url 'questionnaire' %}" class="btn btn-success btn-lg">
                         Go to My Dashboard
                     </a>

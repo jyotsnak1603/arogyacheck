@@ -18,7 +18,7 @@ class RegisterForm(forms.Form):
     username = forms.CharField(max_length=50, 
                                widget=forms.TextInput(attrs={'class': 'form-control'}))
     
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control'}))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control'}))
     password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
@@ -56,4 +56,10 @@ class RegisterForm(forms.Form):
                 self.add_error('password', list(e.messages))
 
         return cleaned_data
+    
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Emailis already registered. Try logging in or register using different account")
+        return email
     

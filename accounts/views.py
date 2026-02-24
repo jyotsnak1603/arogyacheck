@@ -41,6 +41,21 @@ def register_view(request):
                 verification_token=token,
             )
 
+            # Assign user to group based on role
+            from django.contrib.auth.models import Group
+            group_name_map = {
+                'patient': 'Patient',
+                'asha': 'ASHA Worker',
+                'doctor': 'Doctor',
+            }
+            group_name = group_name_map.get(role)
+            if group_name:
+                try:
+                    group = Group.objects.get(name=group_name)
+                    user.groups.add(group)
+                except Group.DoesNotExist:
+                    pass
+
             # Send verification email for doctor
             if role == 'doctor':
                 verify_link = f"http://127.0.0.1:8000/accounts/verify-email/{token}/"
