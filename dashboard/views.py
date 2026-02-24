@@ -258,3 +258,176 @@ def doctor_patient_detail(request, patient_id):
         'health_profile': health_profile,
         'all_reports': all_reports,
     })
+
+
+@login_required
+@role_required('doctor')
+def doctor_analytics(request):
+    import plotly.graph_objects as go
+    import plotly.io as pio
+    import pandas as pd
+    from collections import Counter
+
+    # Get all patient data
+    all_profiles = UserProfile.objects.filter(role='patient').select_related('user')
+
+    # Collect data
+    ages = []
+    districts = []
+    overall_scores = []
+    diabetes_risks = []
+    hypertension_risks = []
+    heart_risks = []
+    monthly_registrations = []
+
+    for profile in all_profiles:
+        try:
+            hp = HealthProfile.objects.get(patient=profile.user)
+            latest_q = hp.questionnaires.latest('submitted_at')
+            report = latest_q.report
+
+            ages.append(hp.age)
+            districts.append(profile.district)
+            overall_scores.append(report.overall_score)
+            diabetes_risks.append(report.diabetes_risk)
+            hypertension_risks.append(report.hypertension_risk)
+            heart_risks.append(report.heart_risk)
+            monthly_registrations.append(
+                latest_q.submitted_at.strftime('%b %Y')
+            )
+        except:
+            pass
+
+    charts = {}
+
+    # Chart 1 — Risk Level Distribution (Pie Chart)
+    risk_counts = Counter(
+        ['Low' if s < 30 else 'Moderate' if s < 60 else 'High'
+         for s in overall_scores]
+    )
+    fig1 = go.Figure(go.Pie(
+        labels=list(risk_counts.keys()),
+        values=list(risk_counts.values()),
+        marker=dict(colors=['#28a745', '#ffc107', '#dc3545']),
+        hole=0.4,
+    ))
+    fig1.update_layout(
+        title='Overall Risk Level Distribution',
+        height=350,
+        template='plotly_white'
+    )
+    charts['risk_distribution'] = pio.to_html(fig1, full_html=False)
+
+    # Chart 2 — Age Group Analysis (Bar Chart)
+    age_groups = {
+        '18-30': 0, '31-40': 0,
+        '41-50': 0, '51-60': 0, '60+': 0
+    }
+    for age in ages:
+        if age <= 30:
+            age_groups['18-30'] += 1
+        elif age <= 40:
+            age_groups['31-40'] += 1
+        elif age <= 50:
+            age_groups['41-50'] += 1
+        elif age <= 60:
+            age_groups['51-60'] += 1
+        else:
+            age_groups['60+'] += 1
+
+    fig2 = go.Figure(go.Bar(
+        x=list(age_groups.keys()),
+        y=list(age_groups.values()),
+        marker_color='#28a745',
+        text=list(age_groups.values()),
+        textposition='auto',
+    ))
+    fig2.update_layout(
+        title='Patients by Age Group',
+        xaxis_title='Age Group',
+        yaxis_title='Number of Patients',
+        height=350,
+        template='plotly_white'
+    )
+    charts['age_distribution'] = pio.to_html(fig2, full_html=False)
+
+    # Chart 3 — Disease Risk Comparison (Bar Chart)
+    disease_data = {
+        'Diabetes': Counter(diabetes_risks),
+        'Hypertension': Counter(hypertension_risks),
+        'Heart': Counter(heart_risks),
+    }
+    fig3 = go.Figure()
+    colors = {'low': '#28a745', 'moderate': '#ffc107', 'high': '#dc3545'}
+    for level, color in colors.items():
+        fig3.add_trace(go.Bar(
+            name=level.capitalize(),
+            x=list(disease_data.keys()),
+            y=[disease_data[d].get(level, 0) for d in disease_data],
+            marker_color=color,
+        ))
+    fig3.update_layout(
+        title='Disease Risk Comparison',
+        xaxis_title='Disease',
+        yaxis_title='Number of Patients',
+        barmode='group',
+        height=350,
+        template='plotly_white'
+    )
+    charts['disease_comparison'] = pio.to_html(fig3, full_html=False)
+
+    # Chart 4 — District wise Average Risk (Bar Chart)
+    district_scores = {}
+    for d, s in zip(districts, overall_scores):
+        if d not in district_scores:
+            district_scores[d] = []
+        district_scores[d].append(s)
+    district_avg = {d: round(sum(v)/len(v), 1)
+                    for d, v in district_scores.items()}
+
+    fig4 = go.Figure(go.Bar(
+        x=list(district_avg.keys()),
+        y=list(district_avg.values()),
+        marker_color='#17a2b8',
+        text=list(district_avg.values()),
+        textposition='auto',
+    ))
+    fig4.update_layout(
+        title='Average Risk Score by District',
+        xaxis_title='District',
+        yaxis_title='Average Risk Score',
+        height=350,
+        template='plotly_white'
+    )
+    charts['district_analysis'] = pio.to_html(fig4, full_html=False)
+
+    # Chart 5 — Monthly Registration Trend (Line Chart)
+    monthly_count = Counter(monthly_registrations)
+    fig5 = go.Figure(go.Scatter(
+        x=list(monthly_count.keys()),
+        y=list(monthly_count.values()),
+        mode='lines+markers',
+        line=dict(color='#28a745', width=3),
+        marker=dict(size=10),
+    ))
+    fig5.update_layout(
+        title='Monthly Patient Registration Trend',
+        xaxis_title='Month',
+        yaxis_title='Number of Patients',
+        height=350,
+        template='plotly_white'
+    )
+    charts['monthly_trend'] = pio.to_html(fig5, full_html=False)
+
+    # Summary stats
+    stats = {
+        'total_patients': len(overall_scores),
+        'avg_score': round(sum(overall_scores)/len(overall_scores), 1) if overall_scores else 0,
+        'high_risk': sum(1 for s in overall_scores if s >= 60),
+        'low_risk': sum(1 for s in overall_scores if s < 30),
+    }
+
+    return render(request, 'dashboard/doctor_analytics.html', {
+        'charts': charts,
+        'stats': stats,
+    })

@@ -90,8 +90,63 @@ def report_view(request):
         messages.error(request, "No report found. Please fill the questionnaire first.")
         return redirect('questionnaire')
 
+    # Generate health trend graph
+    chart_html = None
+    try:
+        import plotly.graph_objects as go
+        import plotly.io as pio
+
+        # Get all questionnaires with reports ordered by date
+        all_questionnaires = health_profile.questionnaires.order_by('submitted_at')
+        
+        dates = []
+        scores = []
+        for q in all_questionnaires:
+            try:
+                dates.append(q.submitted_at.strftime('%d %b %Y'))
+                scores.append(q.report.overall_score)
+            except RiskReport.DoesNotExist:
+                pass
+
+        if len(dates) >= 1:
+            # Color based on score
+            line_color = 'green' if scores[-1] < 30 else 'orange' if scores[-1] < 60 else 'red'
+
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=dates,
+                y=scores,
+                mode='lines+markers',
+                name='Risk Score',
+                line=dict(color=line_color, width=3),
+                marker=dict(size=10, color=line_color),
+                hovertemplate='Date: %{x}<br>Risk Score: %{y}/100<extra></extra>'
+            ))
+
+            # Add risk zone lines
+            fig.add_hline(y=30, line_dash='dash', line_color='green',
+                         annotation_text='Low Risk Zone')
+            fig.add_hline(y=60, line_dash='dash', line_color='orange',
+                         annotation_text='Moderate Risk Zone')
+
+            fig.update_layout(
+                title='Your Health Risk Trend Over Time',
+                xaxis_title='Date',
+                yaxis_title='Risk Score (0-100)',
+                yaxis=dict(range=[0, 100]),
+                template='plotly_white',
+                height=350,
+                margin=dict(l=40, r=40, t=60, b=40),
+            )
+
+            chart_html = pio.to_html(fig, full_html=False)
+
+    except Exception as e:
+        chart_html = None
+
     return render(request, 'patients/report.html', {
         'report': report,
         'health_profile': health_profile,
         'questionnaire': latest_questionnaire,
+        'chart_html': chart_html,
     })

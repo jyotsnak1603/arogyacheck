@@ -5,6 +5,9 @@
     <div class="col">
         <h4 class="text-success">👨‍⚕️ Doctor Dashboard</h4>
         <p class="text-muted">Hello Dr. {{ request.user.first_name }}, here are all registered patients.</p>
+        <a href="{% url 'doctor_analytics' %}" class="btn btn-success">
+            📊 View Analytics
+        </a>
     </div>
 </div>
 

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Header -->
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="text-success">📊 Analytics Dashboard</h4>
+        <p class="text-muted">Health insights across all registered patients</p>
+    </div>
+    <div class="col text-end">
+        <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary">
+            ← Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-light">
+            <div class="card-body">
+                <h2 class="text-success">{{ stats.total_patients }}</h2>
+                <small class="text-muted">Total Patients</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-light">
+            <div class="card-body">
+                <h2 class="text-warning">{{ stats.avg_score }}</h2>
+                <small class="text-muted">Average Risk Score</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-light">
+            <div class="card-body">
+                <h2 class="text-danger">{{ stats.high_risk }}</h2>
+                <small class="text-muted">High Risk Patients</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0 bg-light">
+            <div class="card-body">
+                <h2 class="text-success">{{ stats.low_risk }}</h2>
+                <small class="text-muted">Low Risk Patients</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 1 — Risk Distribution + Age Groups -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                {{ charts.risk_distribution|safe }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                {{ charts.age_distribution|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 2 — Disease Comparison -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-body">
+                {{ charts.disease_comparison|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 3 — District Analysis + Monthly Trend -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                {{ charts.district_analysis|safe }}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body">
+                {{ charts.monthly_trend|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

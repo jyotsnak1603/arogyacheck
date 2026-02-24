@@ -115,6 +115,18 @@
             </div>
         </div>
 
+        <!-- Health Trend Graph -->
+        {% if chart_html %}
+        <div class="card shadow mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">📈 Your Health Trend</h5>
+            </div>
+            <div class="card-body">
+                {{ chart_html|safe }}
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Recommendation -->
         <div class="card shadow mb-4">
             <div class="card-header bg-light">
