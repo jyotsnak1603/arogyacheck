@@ -5,8 +5,8 @@
     <div class="col-md-9">
         <div class="card shadow">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0">👤 Register New Patient</h5>
-                <small>Fill all details on behalf of the patient</small>
+                <h5 class="mb-0">{{ t.register_patient_title }}</h5>
+                <small>{{ t.fill_details_behalf }}</small>
             </div>
             <div class="card-body">
                 <form method="POST">
@@ -14,18 +14,18 @@
 
                     <!-- Patient Identity -->
                     <h6 class="text-success border-bottom pb-2 mb-3">
-                        Patient Identity
+                        {{ t.patient_identity }}
                     </h6>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label>First Name</label>
+                            <label>{{ t.first_name }}</label>
                             {{ user_form.first_name }}
                             <small class="text-danger">
                                 {{ user_form.first_name.errors }}
                             </small>
                         </div>
                         <div class="col-md-6">
-                            <label>Last Name</label>
+                            <label>{{ t.last_name }}</label>
                             {{ user_form.last_name }}
                             <small class="text-danger">
                                 {{ user_form.last_name.errors }}
@@ -34,21 +34,21 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label>Username</label>
+                            <label>{{ t.username }}</label>
                             {{ user_form.username }}
                             <small class="text-danger">
                                 {{ user_form.username.errors }}
                             </small>
                         </div>
                         <div class="col-md-4">
-                            <label>Phone</label>
+                            <label>{{ t.phone }}</label>
                             {{ user_form.phone }}
                             <small class="text-danger">
                                 {{ user_form.phone.errors }}
                             </small>
                         </div>
                         <div class="col-md-4">
-                            <label>Email</label>
+                            <label>{{ t.email }}</label>
                             {{ user_form.email }}
                             <small class="text-danger">
                                 {{ user_form.email.errors }}
@@ -57,67 +57,67 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label>Password</label>
+                            <label>{{ t.password }}</label>
                             {{ user_form.password }}
                         </div>
                         <div class="col-md-4">
-                            <label>Confirm Password</label>
+                            <label>{{ t.confirm_password }}</label>
                             {{ user_form.confirm_password }}
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label>Village</label>
+                            <label>{{ t.village }}</label>
                             {{ user_form.village }}
                         </div>
                         <div class="col-md-4">
-                            <label>District</label>
+                            <label>{{ t.district }}</label>
                             {{ user_form.district }}
                         </div>
                         <div class="col-md-4">
-                            <label>State</label>
+                            <label>{{ t.state }}</label>
                             {{ user_form.state }}
                         </div>
                     </div>
 
                     <!-- Health Profile -->
                     <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
-                        Physical Information
+                        {{ t.physical_information }}
                     </h6>
                     <div class="row mb-3">
                         <div class="col-md-3">
-                            <label>Age</label>
+                            <label>{{ t.age }}</label>
                             {{ profile_form.age }}
                         </div>
                         <div class="col-md-3">
-                            <label>Gender</label>
+                            <label>{{ t.gender }}</label>
                             {{ profile_form.gender }}
                         </div>
                         <div class="col-md-3">
-                            <label>Weight (kg)</label>
+                            <label>{{ t.weight }} (kg)</label>
                             {{ profile_form.weight_kg }}
                         </div>
                         <div class="col-md-3">
-                            <label>Height (cm)</label>
+                            <label>{{ t.height }}</label>
                             {{ profile_form.height_cm }}
                         </div>
                     </div>
 
                     <!-- Questionnaire -->
                     <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
-                        🏃 Lifestyle
+                        🏃 {{ t.lifestyle }}
                     </h6>
                     <div class="row mb-3">
                         <div class="col-md-4">
-                            <label>Physical Activity</label>
+                            <label>{{ t.physical_activity }}</label>
                             {{ questionnaire_form.physical_activity }}
                         </div>
                         <div class="col-md-4">
-                            <label>Diet Type</label>
+                            <label>{{ t.diet_type }}</label>
                             {{ questionnaire_form.diet_type }}
                         </div>
                         <div class="col-md-4">
-                            <label>Sleep Hours/Night</label>
+                            <label>{{ t.sleep_hours }}</label>
                             {{ questionnaire_form.sleep_hours }}
                         </div>
                     </div>
@@ -125,112 +125,160 @@
                         <div class="col-md-6">
                             <div class="form-check">
                                 {{ questionnaire_form.smoking }}
-                                <label class="form-check-label">Smokes?</label>
+                                <label class="form-check-label">{{ t.smokes }}</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-check">
                                 {{ questionnaire_form.alcohol }}
-                                <label class="form-check-label">Consumes Alcohol?</label>
+                                <label class="form-check-label">{{ t.consumes_alcohol }}</label>
                             </div>
                         </div>
                     </div>
 
                     <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
-                        🤒 Symptoms
+                        🤒 {{ t.symptoms }}
                     </h6>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.frequent_thirst }}
-                                <label class="form-check-label">Frequent Thirst</label>
+                                <label class="form-check-label">{{ t.frequent_thirst }}</label>
                             </div>
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.frequent_urination }}
-                                <label class="form-check-label">Frequent Urination</label>
+                                <label class="form-check-label">{{ t.frequent_urination }}</label>
                             </div>
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.fatigue }}
-                                <label class="form-check-label">Fatigue</label>
+                                <label class="form-check-label">{{ t.fatigue }}</label>
                             </div>
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.blurred_vision }}
-                                <label class="form-check-label">Blurred Vision</label>
+                                <label class="form-check-label">{{ t.blurred_vision }}</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.chest_pain }}
-                                <label class="form-check-label">Chest Pain</label>
+                                <label class="form-check-label">{{ t.chest_pain }}</label>
                             </div>
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.shortness_of_breath }}
-                                <label class="form-check-label">Shortness of Breath</label>
+                                <label class="form-check-label">{{ t.shortness_of_breath }}</label>
                             </div>
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.numbness_in_feet }}
-                                <label class="form-check-label">Numbness in Feet</label>
+                                <label class="form-check-label">{{ t.numbness_in_feet }}</label>
                             </div>
                         </div>
                     </div>
 
                     <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
-                        👨‍👩‍👧 Family History
+                        👨‍👩‍👧 {{ t.family_history }}
                     </h6>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.family_diabetes }}
-                                <label class="form-check-label">Diabetes</label>
+                                <label class="form-check-label">{{ t.diabetes }}</label>
                             </div>
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.family_hypertension }}
-                                <label class="form-check-label">Hypertension</label>
+                                <label class="form-check-label">{{ t.hypertension }}</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.family_heart_disease }}
-                                <label class="form-check-label">Heart Disease</label>
+                                <label class="form-check-label">{{ t.heart }}</label>
                             </div>
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.family_kidney_disease }}
-                                <label class="form-check-label">Kidney Disease</label>
+                                <label class="form-check-label">{{ t.kidney_disease }}</label>
                             </div>
                         </div>
                     </div>
 
                     <h6 class="text-success border-bottom pb-2 mb-3 mt-4">
-                        💊 Existing Conditions
+                        💊 {{ t.existing_conditions }}
                     </h6>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.already_diabetic }}
-                                <label class="form-check-label">Already Diabetic</label>
+                                <label class="form-check-label">{{ t.already_diabetic }}</label>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-check mb-2">
                                 {{ questionnaire_form.already_hypertensive }}
-                                <label class="form-check-label">Already Hypertensive</label>
+                                <label class="form-check-label">{{ t.already_hypertensive }}</label>
                             </div>
                         </div>
                     </div>
 
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-success btn-lg">
-                            Register Patient & Generate Report
+                        <button type="submit" id="submitBtn" class="btn btn-success btn-lg">
+                            {{ t.register_btn }}
                         </button>
                     </div>
                 </form>
             </div>
         </div>
+        <div id="offlineAlert" class="alert alert-warning mt-3 d-none">
+            {{ t.offline_alert }}
+        </div>
         <div class="mt-3">
             <a href="{% url 'asha_dashboard' %}" class="btn btn-outline-secondary">
-                ← Back to Dashboard
+                {{ t.back_to_dashboard }}
             </a>
         </div>
     </div>
 </div>
+
+<script>
+    const dbName = "ArogyaOfflineDB";
+    const storeName = "pendingRegistrations";
+
+    // Initialize IndexedDB
+    const request = indexedDB.open(dbName, 1);
+    request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(storeName)) {
+            db.createObjectStore(storeName, { autoIncrement: true });
+        }
+    };
+
+    const form = document.querySelector('form');
+    const submitBtn = document.getElementById('submitBtn');
+    const offlineAlert = document.getElementById('offlineAlert');
+
+    // Monitor Online/Offline status
+    window.addEventListener('online', () => offlineAlert.classList.add('d-none'));
+    window.addEventListener('offline', () => offlineAlert.classList.remove('d-none'));
+
+    form.addEventListener('submit', async (e) => {
+        if (!navigator.onLine) {
+            e.preventDefault();
+            
+            const formData = new FormData(form);
+            const data = {};
+            formData.forEach((value, key) => data[key] = value);
+
+            const dbOpen = indexedDB.open(dbName, 1);
+            dbOpen.onsuccess = (event) => {
+                const db = event.target.result;
+                const transaction = db.transaction(storeName, "readwrite");
+                const store = transaction.objectStore(storeName);
+                store.add(data);
+                
+                transaction.oncomplete = () => {
+                    alert("No internet! Patient data saved LOCALLY. It will sync once you are back online.");
+                    window.location.href = "{% url 'asha_dashboard' %}";
+                };
+            };
+        }
+    });
+</script>
 {% endblock %}

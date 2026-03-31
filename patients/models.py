@@ -113,3 +113,39 @@ class AuditLog(models.Model):
 
     def __str__(self):
         return f"{self.performed_by} - {self.action} - {self.timestamp}"
+
+class RiskConfiguration(models.Model):
+    name = models.CharField(max_length=100, default="Standard Protocol")
+    is_active = models.BooleanField(default=True)
+
+    # BMI Weights
+    bmi_obese_weight = models.IntegerField(default=20, help_text="Weight for BMI >= 35")
+    bmi_overweight_high = models.IntegerField(default=15, help_text="Weight for BMI >= 30")
+    bmi_overweight_low = models.IntegerField(default=10, help_text="Weight for BMI >= 25")
+
+    # Age Weights
+    age_elderly_weight = models.IntegerField(default=15, help_text="Weight for Age >= 60")
+    age_senior_weight = models.IntegerField(default=10, help_text="Weight for Age >= 45")
+    age_middle_weight = models.IntegerField(default=5, help_text="Weight for Age >= 35")
+
+    # Lifestyle
+    smoking_weight = models.IntegerField(default=10)
+    alcohol_weight = models.IntegerField(default=5)
+    inactivity_weight = models.IntegerField(default=10)
+    light_activity_weight = models.IntegerField(default=5)
+    sleep_deprivation_weight = models.IntegerField(default=5)
+
+    # Symptoms & History
+    symptom_weight = models.IntegerField(default=5, help_text="Weight per symptom reported")
+    family_history_weight = models.IntegerField(default=5, help_text="Weight per family condition")
+
+    # Existing Conditions
+    diabetes_existing_weight = models.IntegerField(default=10)
+    hypertension_existing_weight = models.IntegerField(default=10)
+
+    class Meta:
+        verbose_name = "Risk Configuration"
+        verbose_name_plural = "Risk Configurations"
+
+    def __str__(self):
+        return self.name

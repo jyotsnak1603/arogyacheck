@@ -1,7 +1,12 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import HealthProfile, Questionnaire, RiskReport, AuditLog
+from .models import HealthProfile, Questionnaire, RiskReport, AuditLog, RiskConfiguration
+
+@admin.register(RiskConfiguration)
+class RiskConfigurationAdmin(admin.ModelAdmin):
+    list_display = ['name', 'is_active']
+    list_editable = ['is_active']
 
 @admin.register(HealthProfile)
 class HealthProfileAdmin(admin.ModelAdmin):

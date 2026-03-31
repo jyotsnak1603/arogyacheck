@@ -3,34 +3,111 @@
 {% block content %}
 <div class="row mb-4">
     <div class="col">
-        <h4 class="text-success">👩‍⚕️ ASHA Worker Dashboard</h4>
-        <p class="text-muted">Hello {{ request.user.first_name }}, here are your registered patients.</p>
+        <h4 class="text-success">{{ t.asha_dashboard_title }}</h4>
+        <p class="text-muted">{{ t.hello }} {{ request.user.first_name }}, {{ t.asha_dashboard_sub }}</p>
     </div>
-    <div class="col text-end">
+    <div class="col text-end d-flex justify-content-end align-items-center gap-2">
+        <div id="syncSection" class="d-none">
+            <button id="syncBtn" class="btn btn-warning">
+                🔄 <span id="syncCount">0</span> {{ t.sync_pending }}
+            </button>
+        </div>
         <a href="{% url 'register_patient' %}" class="btn btn-success">
-            + Register New Patient
+            {{ t.register_new_patient }}
         </a>
     </div>
 </div>
 
+<script>
+    const dbName = "ArogyaOfflineDB";
+    const storeName = "pendingRegistrations";
+
+    function checkPendingSync() {
+        const dbOpen = indexedDB.open(dbName, 1);
+        dbOpen.onsuccess = (e) => {
+            const db = e.target.result;
+            const transaction = db.transaction(storeName, "readonly");
+            const store = transaction.objectStore(storeName);
+            const countRequest = store.count();
+            countRequest.onsuccess = () => {
+                if (countRequest.result > 0 && navigator.onLine) {
+                    document.getElementById('syncSection').classList.remove('d-none');
+                    document.getElementById('syncCount').innerText = countRequest.result;
+                } else {
+                    document.getElementById('syncSection').classList.add('d-none');
+                }
+            };
+        };
+    }
+
+    // Run on load
+    checkPendingSync();
+    window.addEventListener('online', checkPendingSync);
+
+    document.getElementById('syncBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('syncBtn');
+        btn.disabled = true;
+        btn.innerText = "Syncing...";
+
+        const dbOpen = indexedDB.open(dbName, 1);
+        dbOpen.onsuccess = async (e) => {
+            const db = e.target.result;
+            const transaction = db.transaction(storeName, "readwrite");
+            const store = transaction.objectStore(storeName);
+            const getAllRequest = store.getAll();
+            const getKeysRequest = store.getAllKeys();
+
+            getAllRequest.onsuccess = async () => {
+                const patients = getAllRequest.result;
+                const keys = getKeysRequest.result;
+                
+                for (let i = 0; i < patients.length; i++) {
+                    const data = patients[i];
+                    // We need to send these as form data
+                    const body = new URLSearchParams();
+                    for (const key in data) body.append(key, data[key]);
+
+                    try {
+                        const response = await fetch("{% url 'register_patient' %}", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            body: body.toString()
+                        });
+                        
+                        if (response.ok || response.status === 302) {
+                            // Success - remove from IDB
+                            const deleteTransaction = db.transaction(storeName, "readwrite");
+                            deleteTransaction.objectStore(storeName).delete(keys[i]);
+                        }
+                    } catch (err) {
+                        console.error("Sync failed for one patient:", err);
+                    }
+                }
+                alert("Sync completed! Refreshing page...");
+                window.location.reload();
+            };
+        };
+    });
+</script>
+
 {% if patients_data %}
 <div class="card shadow">
     <div class="card-header bg-light">
-        <strong>Your Patients ({{ patients_data|length }})</strong>
+        <strong>{{ t.patient_list }} ({{ patients_data|length }})</strong>
     </div>
     <div class="table-responsive">
         <table class="table table-hover mb-0">
             <thead class="table-success">
                 <tr>
-                    <th>Name</th>
-                    <th>Village</th>
-                    <th>Phone</th>
-                    <th>Risk Score</th>
-                    <th>Diabetes</th>
-                    <th>Hypertension</th>
-                    <th>Heart</th>
-                    <th>Refer?</th>
-                    <th>Action</th>
+                    <th>{{ t.name }}</th>
+                    <th>{{ t.village }}</th>
+                    <th>{{ t.phone }}</th>
+                    <th>{{ t.score }}</th>
+                    <th>{{ t.diabetes }}</th>
+                    <th>{{ t.hypertension }}</th>
+                    <th>{{ t.heart }}</th>
+                    <th>{{ t.refer }}</th>
+                    <th>{{ t.action }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,7 +130,7 @@
                                 {% if item.report.diabetes_risk == 'low' %}bg-success
                                 {% elif item.report.diabetes_risk == 'moderate' %}bg-warning text-dark
                                 {% else %}bg-danger{% endif %}">
-                                {{ item.report.diabetes_risk|capfirst }}
+                                {% if item.report.diabetes_risk == 'low' %}{{ t.low }}{% elif item.report.diabetes_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
                             </span>
                         </td>
                         <td>
@@ -61,7 +138,7 @@
                                 {% if item.report.hypertension_risk == 'low' %}bg-success
                                 {% elif item.report.hypertension_risk == 'moderate' %}bg-warning text-dark
                                 {% else %}bg-danger{% endif %}">
-                                {{ item.report.hypertension_risk|capfirst }}
+                                {% if item.report.hypertension_risk == 'low' %}{{ t.low }}{% elif item.report.hypertension_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
                             </span>
                         </td>
                         <td>
@@ -69,25 +146,25 @@
                                 {% if item.report.heart_risk == 'low' %}bg-success
                                 {% elif item.report.heart_risk == 'moderate' %}bg-warning text-dark
                                 {% else %}bg-danger{% endif %}">
-                                {{ item.report.heart_risk|capfirst }}
+                                {% if item.report.heart_risk == 'low' %}{{ t.low }}{% elif item.report.heart_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
                             </span>
                         </td>
                         <td>
                             {% if item.report.refer_for_test %}
-                                <span class="badge bg-danger">⚠️ Yes</span>
+                                <span class="badge bg-danger">⚠️ {{ t.yes }}</span>
                             {% else %}
-                                <span class="badge bg-success">No</span>
+                                <span class="badge bg-success">{{ t.no }}</span>
                             {% endif %}
                         </td>
                     {% else %}
                         <td colspan="5">
-                            <span class="text-muted">No report yet</span>
+                            <span class="text-muted">{{ t.no_report_yet }}</span>
                         </td>
                     {% endif %}
                     <td>
                         <a href="{% url 'patient_detail_asha' item.profile.id %}"
                            class="btn btn-sm btn-outline-success">
-                            View
+                            {{ t.view }}
                         </a>
                     </td>
                 </tr>
@@ -100,10 +177,10 @@
 {% else %}
 <div class="card shadow">
     <div class="card-body text-center py-5">
-        <h5 class="text-muted">No patients registered yet.</h5>
-        <p class="text-muted">Start by registering your first patient.</p>
+        <h5 class="text-muted">{{ t.no_patients_found }}</h5>
+        <p class="text-muted">{{ t.try_changing_filters }}</p>
         <a href="{% url 'register_patient' %}" class="btn btn-success">
-            + Register First Patient
+            {{ t.register_new_patient }}
         </a>
     </div>
 </div>
