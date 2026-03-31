@@ -1,72 +1,75 @@
 def calculate_risk(questionnaire, health_profile):
+    from .models import RiskConfiguration
+    
+    # Get active config or use defaults
+    config = RiskConfiguration.objects.filter(is_active=True).first()
+    if not config:
+        # Fallback to an object with default values if DB is empty
+        config = RiskConfiguration()
+
     score = 0
 
-    # BMI Factor (max 20 points)
+    # BMI Factor
     bmi = health_profile.bmi()
-    if bmi>=35:
-        score+=20
-    elif bmi >=30:
-        score+=15
-    elif bmi >=25:
-        score+=10
+    if bmi >= 35:
+        score += config.bmi_obese_weight
+    elif bmi >= 30:
+        score += config.bmi_overweight_high
+    elif bmi >= 25:
+        score += config.bmi_overweight_low
 
-    #Age Factor (max 15 points)
+    # Age Factor
     age = health_profile.age
     if age >= 60:
-        score += 15
+        score += config.age_elderly_weight
     elif age >= 45:
-        score += 10
+        score += config.age_senior_weight
     elif age >= 35:
-        score += 5
+        score += config.age_middle_weight
     
-    #Lifestyle Factors (max 25 points)
+    # Lifestyle Factors
     if questionnaire.smoking:
-        score += 10
+        score += config.smoking_weight
     if questionnaire.alcohol:
-        score += 5
-    if questionnaire.physical_activity == 'none':
-        score += 10
-    elif questionnaire.physical_activity == 'light':
-        score += 5
-    if questionnaire.sleep_hours < 6:
-        score += 5
-    elif questionnaire.sleep_hours > 9:
-        score += 3
+        score += config.alcohol_weight
     
-    #Symptoms (max 35 points)
+    if questionnaire.physical_activity == 'none':
+        score += config.inactivity_weight
+    elif questionnaire.physical_activity == 'light':
+        score += config.light_activity_weight
+        
+    if questionnaire.sleep_hours < 6:
+        score += config.sleep_deprivation_weight
+    
+    # Symptoms
     symptom_fields = [
-        'frequent_thirst',
-        'frequent_urination',
-        'fatigue',
-        'blurred_vision',
-        'chest_pain',
-        'shortness_of_breath',
+        'frequent_thirst', 'frequent_urination', 'fatigue',
+        'blurred_vision', 'chest_pain', 'shortness_of_breath',
         'numbness_in_feet',
     ]
     for field in symptom_fields:
         if getattr(questionnaire, field):
-            score += 5
+            score += config.symptom_weight
         
-    #Family History (max 20 points)
-    if questionnaire.family_diabetes:
-        score += 5
-    if questionnaire.family_hypertension:
-        score += 5
-    if questionnaire.family_heart_disease:
-        score += 5
-    if questionnaire.family_kidney_disease:
-        score += 5
+    # Family History
+    family_fields = [
+        'family_diabetes', 'family_hypertension',
+        'family_heart_disease', 'family_kidney_disease'
+    ]
+    for field in family_fields:
+        if getattr(questionnaire, field):
+            score += config.family_history_weight
 
-    #EXisting Condtion (max 20 points)
+    # Existing Conditions
     if questionnaire.already_diabetic:
-        score += 10
+        score += config.diabetes_existing_weight
     if questionnaire.already_hypertensive:
-        score += 10
+        score += config.hypertension_existing_weight
 
-    #Cap score at 100
+    # Cap score at 100
     score = min(score, 100)
 
-    #Derive Risk levels
+    # Derive Risk levels
     def get_level(s):
         if s < 30:
             return 'low'
@@ -74,40 +77,26 @@ def calculate_risk(questionnaire, health_profile):
             return 'moderate'
         else:
             return 'high'
-    overall_level = get_level(score)
 
-    #Disease specofic scores
-    #Diabetes score
+    # Disease specific scores (using base score as baseline)
     diabetes_score = score
-    if questionnaire.frequent_thirst:
-        diabetes_score += 5
-    if questionnaire.frequent_urination:
-        diabetes_score += 5
-    if questionnaire.family_diabetes:
-        diabetes_score += 5
+    if questionnaire.frequent_thirst: diabetes_score += 5
+    if questionnaire.frequent_urination: diabetes_score += 5
+    if questionnaire.family_diabetes: diabetes_score += 5
     diabetes_score = min(diabetes_score, 100)
 
-    # Hypertension leaning score
     hypertension_score = score
-    if questionnaire.chest_pain:
-        hypertension_score += 5
-    if questionnaire.shortness_of_breath:
-        hypertension_score += 5
-    if questionnaire.family_hypertension:
-        hypertension_score += 5
+    if questionnaire.chest_pain: hypertension_score += 5
+    if questionnaire.shortness_of_breath: hypertension_score += 5
+    if questionnaire.family_hypertension: hypertension_score += 5
     hypertension_score = min(hypertension_score, 100)
 
-    # Heart disease leaning score
     heart_score = score
-    if questionnaire.chest_pain:
-        heart_score += 8
-    if questionnaire.shortness_of_breath:
-        heart_score += 8
-    if questionnaire.family_heart_disease:
-        heart_score += 8
+    if questionnaire.chest_pain: heart_score += 8
+    if questionnaire.shortness_of_breath: heart_score += 8
+    if questionnaire.family_heart_disease: heart_score += 8
     heart_score = min(heart_score, 100)
 
-    # ─── Recommendation Text ──────────────────────────────
     recommendation = get_recommendation(score)
 
     return {
@@ -120,22 +109,24 @@ def calculate_risk(questionnaire, health_profile):
     }
 
 
+from django.utils.translation import gettext as _
+
 def get_recommendation(score):
     if score < 30:
-        return (
+        return _(
             "Your risk levels appear low. Maintain a healthy lifestyle "
             "with regular physical activity and a balanced diet. "
             "Continue annual health checkups as a precaution."
         )
     elif score < 60:
-        return (
+        return _(
             "You have a moderate risk level. We strongly recommend visiting "
             "your nearest Primary Health Centre for a basic checkup. "
             "Focus on improving physical activity, reducing smoking or alcohol "
             "if applicable, and maintaining a healthy diet."
         )
     else:
-        return (
+        return _(
             "Your risk level is high. Please visit a doctor immediately for "
             "lab tests including blood sugar, blood pressure, and lipid profile. "
             "Early detection can prevent serious complications. "

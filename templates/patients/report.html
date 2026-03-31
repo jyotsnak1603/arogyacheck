@@ -28,18 +28,18 @@
         <!-- Print Button -->
         <div class="text-end mb-3">
             <button onclick="window.print()" class="btn btn-success">
-                🖨️ Print / Save as PDF
+                {{ t.print_save }}
             </button>
         </div>
 
         <!-- Header Card -->
         <div class="card shadow mb-4">
             <div class="card-header bg-success text-white text-center">
-                <h4>🏥 Your Risk Report</h4>
-                <small>Generated on {{ report.generated_at|date:"d M Y, h:i A" }}</small>
+                <h4>🏥 {{ t.your_risk_report }}</h4>
+                <small>{{ t.generated_on }} {{ report.generated_at|date:"d M Y, h:i A" }}</small>
             </div>
             <div class="card-body text-center">
-                <h6 class="text-muted">Overall Risk Score</h6>
+                <h6 class="text-muted">{{ t.overall_risk_score }}</h6>
                 <h1 class="display-3 fw-bold
                     {% if report.overall_score < 30 %}text-success
                     {% elif report.overall_score < 60 %}text-warning
@@ -56,8 +56,8 @@
                 </div>
                 {% if report.refer_for_test %}
                 <div class="alert alert-danger">
-                    ⚠️ <strong>Referral Recommended:</strong>
-                    Please visit your nearest PHC for lab tests immediately.
+                    ⚠️ <strong>{{ t.referral_recommended }}:</strong>
+                    {{ t.referral_msg }}
                 </div>
                 {% endif %}
             </div>
@@ -71,12 +71,12 @@
                     {% elif report.diabetes_risk == 'moderate' %}border-warning
                     {% else %}border-danger{% endif %}">
                     <div class="card-body">
-                        <h6>🩸 Diabetes Risk</h6>
+                        <h6>🩸 {{ t.diabetes_risk }}</h6>
                         <span class="badge fs-6
                             {% if report.diabetes_risk == 'low' %}bg-success
                             {% elif report.diabetes_risk == 'moderate' %}bg-warning text-dark
                             {% else %}bg-danger{% endif %}">
-                            {{ report.diabetes_risk|capfirst }}
+                            {% if report.diabetes_risk == 'low' %}{{ t.low }}{% elif report.diabetes_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
                         </span>
                     </div>
                 </div>
@@ -87,12 +87,12 @@
                     {% elif report.hypertension_risk == 'moderate' %}border-warning
                     {% else %}border-danger{% endif %}">
                     <div class="card-body">
-                        <h6>💉 Hypertension Risk</h6>
+                        <h6>💉 {{ t.hypertension_risk }}</h6>
                         <span class="badge fs-6
                             {% if report.hypertension_risk == 'low' %}bg-success
                             {% elif report.hypertension_risk == 'moderate' %}bg-warning text-dark
                             {% else %}bg-danger{% endif %}">
-                            {{ report.hypertension_risk|capfirst }}
+                            {% if report.hypertension_risk == 'low' %}{{ t.low }}{% elif report.hypertension_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
                         </span>
                     </div>
                 </div>
@@ -103,12 +103,12 @@
                     {% elif report.heart_risk == 'moderate' %}border-warning
                     {% else %}border-danger{% endif %}">
                     <div class="card-body">
-                        <h6>❤️ Heart Disease Risk</h6>
+                        <h6>❤️ {{ t.heart_disease_risk }}</h6>
                         <span class="badge fs-6
                             {% if report.heart_risk == 'low' %}bg-success
                             {% elif report.heart_risk == 'moderate' %}bg-warning text-dark
                             {% else %}bg-danger{% endif %}">
-                            {{ report.heart_risk|capfirst }}
+                            {% if report.heart_risk == 'low' %}{{ t.low }}{% elif report.heart_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
                         </span>
                     </div>
                 </div>
@@ -119,7 +119,7 @@
         {% if chart_html %}
         <div class="card shadow mb-4">
             <div class="card-header bg-light">
-                <h5 class="mb-0">📈 Your Health Trend</h5>
+                <h5 class="mb-0">📈 {{ t.your_health_trend }}</h5>
             </div>
             <div class="card-body">
                 {{ chart_html|safe }}
@@ -130,34 +130,38 @@
         <!-- Recommendation -->
         <div class="card shadow mb-4">
             <div class="card-header bg-light">
-                <h5 class="mb-0">📋 Recommendation</h5>
+                <h5 class="mb-0">📋 {{ t.recommendation }}</h5>
             </div>
             <div class="card-body">
-                <p class="mb-0">{{ report.recommendation }}</p>
+                <p class="mb-0">
+                    {% if report.overall_score < 30 %}{{ t.rec_low }}
+                    {% elif report.overall_score < 60 %}{{ t.rec_moderate }}
+                    {% else %}{{ t.rec_high }}{% endif %}
+                </p>
             </div>
         </div>
 
         <!-- Patient Info -->
         <div class="card shadow mb-4">
             <div class="card-header bg-light">
-                <h5 class="mb-0">👤 Your Profile</h5>
+                <h5 class="mb-0">👤 {{ t.your_profile }}</h5>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-3 text-center">
-                        <small class="text-muted">Age</small>
+                        <small class="text-muted">{{ t.age }}</small>
                         <h5>{{ health_profile.age }} yrs</h5>
                     </div>
                     <div class="col-md-3 text-center">
-                        <small class="text-muted">Gender</small>
+                        <small class="text-muted">{{ t.gender }}</small>
                         <h5>{{ health_profile.gender|capfirst }}</h5>
                     </div>
                     <div class="col-md-3 text-center">
-                        <small class="text-muted">Weight</small>
+                        <small class="text-muted">{{ t.weight }}</small>
                         <h5>{{ health_profile.weight_kg }} kg</h5>
                     </div>
                     <div class="col-md-3 text-center">
-                        <small class="text-muted">BMI</small>
+                        <small class="text-muted">{{ t.bmi }}</small>
                         <h5>{{ health_profile.bmi }}</h5>
                     </div>
                 </div>
@@ -168,12 +172,12 @@
         <div class="row">
             <div class="col-md-6 d-grid">
                 <a href="{% url 'questionnaire' %}" class="btn btn-outline-success">
-                    🔄 Retake Questionnaire
+                    🔄 {{ t.retake_questionnaire }}
                 </a>
             </div>
             <div class="col-md-6 d-grid">
                 <a href="{% url 'logout' %}" class="btn btn-outline-secondary">
-                    Logout
+                    {{ t.logout }}
                 </a>
             </div>
         </div>

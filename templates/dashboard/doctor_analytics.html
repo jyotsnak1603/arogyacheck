@@ -5,12 +5,12 @@
 <!-- Header -->
 <div class="row mb-4">
     <div class="col">
-        <h4 class="text-success">📊 Analytics Dashboard</h4>
-        <p class="text-muted">Health insights across all registered patients</p>
+        <h4 class="text-success">{{ t.analytics_dashboard }}</h4>
+        <p class="text-muted">{{ t.health_insights }}</p>
     </div>
     <div class="col text-end">
         <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary">
-            ← Back to Dashboard
+            {{ t.back_to_dashboard }}
         </a>
     </div>
 </div>
@@ -21,7 +21,7 @@
         <div class="card text-center shadow-sm border-0 bg-light">
             <div class="card-body">
                 <h2 class="text-success">{{ stats.total_patients }}</h2>
-                <small class="text-muted">Total Patients</small>
+                <small class="text-muted">{{ t.total_patients }}</small>
             </div>
         </div>
     </div>
@@ -29,7 +29,7 @@
         <div class="card text-center shadow-sm border-0 bg-light">
             <div class="card-body">
                 <h2 class="text-warning">{{ stats.avg_score }}</h2>
-                <small class="text-muted">Average Risk Score</small>
+                <small class="text-muted">{{ t.avg_risk_score }}</small>
             </div>
         </div>
     </div>
@@ -37,7 +37,7 @@
         <div class="card text-center shadow-sm border-0 bg-light">
             <div class="card-body">
                 <h2 class="text-danger">{{ stats.high_risk }}</h2>
-                <small class="text-muted">High Risk Patients</small>
+                <small class="text-muted">{{ t.high_risk_patients }}</small>
             </div>
         </div>
     </div>
@@ -45,7 +45,7 @@
         <div class="card text-center shadow-sm border-0 bg-light">
             <div class="card-body">
                 <h2 class="text-success">{{ stats.low_risk }}</h2>
-                <small class="text-muted">Low Risk Patients</small>
+                <small class="text-muted">{{ t.low_risk_patients }}</small>
             </div>
         </div>
     </div>
