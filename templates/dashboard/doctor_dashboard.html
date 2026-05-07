@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h4 class="text-success">{{ t.doctor_dashboard_title }}</h4>
+        <p class="text-muted">{{ t.hello }} डॉ. {{ request.user.first_name }}, {{ t.doctor_dashboard_sub }}</p>
+        <a href="{% url 'doctor_analytics' %}" class="btn btn-success">
+            {{ t.view_analytics }}
+        </a>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">{{ t.filter_by_risk }}</label>
+                <select name="risk" class="form-select">
+                    <option value="">{{ t.all_risk_levels }}</option>
+                    <option value="low" {% if risk_filter == 'low' %}selected{% endif %}>
+                        {{ t.low }}
+                    </option>
+                    <option value="moderate" {% if risk_filter == 'moderate' %}selected{% endif %}>
+                        {{ t.moderate }}
+                    </option>
+                    <option value="high" {% if risk_filter == 'high' %}selected{% endif %}>
+                        {{ t.high }}
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">{{ t.filter_by_district }}</label>
+                <select name="district" class="form-select">
+                    <option value="">{{ t.all_districts }}</option>
+                    {% for district in districts %}
+                    <option value="{{ district }}"
+                        {% if district_filter == district %}selected{% endif %}>
+                        {{ district }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <div class="col-md-4">
+                    <label class="form-label">{{ t.search_patient }}</label>
+                    <input type="text" name="search" class="form-control"
+                        placeholder="{{ t.name }} ..."
+                        value="{{ search_query }}">
+                </div>
+                <button type="submit" class="btn btn-success">{{ t.apply_filters }}</button>
+                <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-secondary">
+                    {{ t.clear }}
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center border-0 bg-light">
+            <div class="card-body">
+                <h3 class="text-success">{{ total }}</h3>
+                <small class="text-muted">{{ t.total_patients }}</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center border-0 bg-light">
+            <div class="card-body">
+                <h3 class="text-info">
+                    {{ total }}
+                </h3>
+                <small class="text-muted">{{ t.total_filtered }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Patients Table -->
+{% if patients_data %}
+<div class="card shadow">
+    <div class="card-header bg-light">
+        <strong>{{ t.patient_list }} ({{ patients_data|length }})</strong>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead class="table-success">
+                <tr>
+                    <th>{{ t.name }}</th>
+                    <th>{{ t.village }}</th>
+                    <th>{{ t.district }}</th>
+                    <th>{{ t.age }}</th>
+                    <th>{{ t.score }}</th>
+                    <th>{{ t.diabetes }}</th>
+                    <th>{{ t.hypertension }}</th>
+                    <th>{{ t.heart }}</th>
+                    <th>{{ t.refer }}</th>
+                    <th>{{ t.reviewed }}</th>
+                    <th>{{ t.action }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in patients_data %}
+                <tr>
+                    <td>{{ item.profile.user.get_full_name }}</td>
+                    <td>{{ item.profile.village }}</td>
+                    <td>{{ item.profile.district }}</td>
+                    <td>
+                        {% if item.profile.user.healthprofile %}
+                            {{ item.profile.user.healthprofile.age }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    {% if item.report %}
+                        <td>
+                            <span class="badge
+                                {% if item.report.overall_score < 30 %}bg-success
+                                {% elif item.report.overall_score < 60 %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {{ item.report.overall_score }}/100
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.diabetes_risk == 'low' %}bg-success
+                                {% elif item.report.diabetes_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {% if item.report.diabetes_risk == 'low' %}{{ t.low }}{% elif item.report.diabetes_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.hypertension_risk == 'low' %}bg-success
+                                {% elif item.report.hypertension_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {% if item.report.hypertension_risk == 'low' %}{{ t.low }}{% elif item.report.hypertension_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge
+                                {% if item.report.heart_risk == 'low' %}bg-success
+                                {% elif item.report.heart_risk == 'moderate' %}bg-warning text-dark
+                                {% else %}bg-danger{% endif %}">
+                                {% if item.report.heart_risk == 'low' %}{{ t.low }}{% elif item.report.heart_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
+                            </span>
+                        </td>
+                        <td>
+                            {% if item.report.refer_for_test %}
+                                <span class="badge bg-danger">⚠️ {{ t.yes }}</span>
+                            {% else %}
+                                <span class="badge bg-success">{{ t.no }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.report.reviewed_by_doctor %}
+                                <span class="badge bg-success">✓ {{ t.done }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">{{ t.pending }}</span>
+                            {% endif %}
+                        </td>
+                    {% else %}
+                        <td colspan="6">
+                            <span class="text-muted">{{ t.no_report_yet }}</span>
+                        </td>
+                    {% endif %}
+                    <td>
+                        <a href="{% url 'doctor_patient_detail' item.profile.id %}"
+                           class="btn btn-sm btn-outline-success">
+                            {{ t.view }}
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination Links -->
+    {% if patients_data.has_other_pages %}
+    <div class="card-footer bg-white">
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center mb-0">
+                {% if patients_data.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link text-success" href="?page=1{% if risk_filter %}&risk={{ risk_filter }}{% endif %}{% if district_filter %}&district={{ district_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo; {{ t.first }}</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-success" href="?page={{ patients_data.previous_page_number }}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}{% if district_filter %}&district={{ district_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo; {{ t.previous }}</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item disabled">
+                    <span class="page-link text-dark">
+                        {{ t.page }} {{ patients_data.number }} {{ t.of }} {{ patients_data.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if patients_data.has_next %}
+                    <li class="page-item">
+                        <a class="page-link text-success" href="?page={{ patients_data.next_page_number }}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}{% if district_filter %}&district={{ district_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Next">
+                            <span aria-hidden="true">{{ t.next }} &raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link text-success" href="?page={{ patients_data.paginator.num_pages }}{% if risk_filter %}&risk={{ risk_filter }}{% endif %}{% if district_filter %}&district={{ district_filter }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" aria-label="Last">
+                            <span aria-hidden="true">{{ t.last }} &raquo;&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% else %}
+<div class="card shadow">
+    <div class="card-body text-center py-5">
+        <h5 class="text-muted">{{ t.no_patients_found }}</h5>
+        <p class="text-muted">{{ t.try_changing_filters }}</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

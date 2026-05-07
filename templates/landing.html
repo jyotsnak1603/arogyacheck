@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero-gradient">
+    <div class="row justify-content-center text-center animate-fade-in-up">
+        <div class="col-md-9">
+            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill mb-3">
+                ✨ {{ t.built_for_bharat }}
+            </span>
+            <h1 class="display-3 fw-bold text-dark mb-4">
+                🏥 {{ t.brand }}
+            </h1>
+            <p class="lead text-muted mb-5 px-md-5">
+                {{ t.tagline }}
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'asha_dashboard' %}" class="btn btn-success btn-lg px-5">
+                        {{ t.login }}
+                    </a>
+                {% else %}
+                    <a href="{% url 'register' %}" class="btn btn-success btn-lg px-5">
+                        {{ t.get_started }}
+                    </a>
+                    <a href="{% url 'login' %}" class="btn btn-outline-success btn-lg px-5">
+                        {{ t.login }}
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-11">
+            <div class="text-center mb-5">
+                <h2 class="text-dark">{{ t.how_it_works }}</h2>
+                <div class="bg-success mx-auto mt-2" style="width: 50px; height: 4px; border-radius: 2px;"></div>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 border-0">
+                        <div class="display-5 mb-3 text-success">📋</div>
+                        <h4 class="mb-3">{{ t.fill_questionnaire }}</h4>
+                        <p class="text-muted">
+                            {{ t.fill_desc }}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 border-0">
+                        <div class="display-5 mb-3 text-primary">🧠</div>
+                        <h4 class="mb-3">{{ t.get_risk_score }}</h4>
+                        <p class="text-muted">
+                            {{ t.risk_desc }}
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 p-4 border-0">
+                        <div class="display-5 mb-3 text-warning">👨‍⚕️</div>
+                        <h4 class="mb-3">{{ t.doctor_reviews }}</h4>
+                        <p class="text-muted">
+                            {{ t.doctor_desc }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Who Is It For Section -->
+<div class="bg-light py-5 mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-11">
+                <div class="text-center mb-5">
+                    <h2 class="text-dark">{{ t.who_is_it_for }}</h2>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="card bg-white border-0 p-4 h-100">
+                            <h5 class="text-success mb-3">🧑‍🌾 {{ t.patients }}</h5>
+                            <p class="text-muted small mb-0">
+                                {{ t.patients_desc }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-white border-0 p-4 h-100">
+                            <h5 class="text-success mb-3">👩‍⚕️ {{ t.asha_workers }}</h5>
+                            <p class="text-muted small mb-0">
+                                {{ t.asha_desc }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-white border-0 p-4 h-100">
+                            <h5 class="text-success mb-3">🏥 {{ t.phc_doctors }}</h5>
+                            <p class="text-muted small mb-0">
+                                {{ t.phc_desc }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-center mt-5 py-5 text-muted small">
+    © 2026 ArogyaCheck — Health Screening for Rural India
+</div>
+
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<style>
+    @media print {
+        nav, .btn, .navbar {
+            display: none !important;
+        }
+        .card {
+            border: 1px solid #ccc !important;
+            box-shadow: none !important;
+        }
+        body {
+            font-size: 12pt;
+        }
+        .badge {
+            border: 1px solid #000;
+            color: #000 !important;
+            background-color: transparent !important;
+        }
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <!-- Print Button -->
+        <div class="text-end mb-3">
+            <button onclick="window.print()" class="btn btn-success">
+                {{ t.print_save }}
+            </button>
+        </div>
+
+        <!-- Header Card -->
+        <div class="card mb-4 animate-fade-in-up">
+            <div class="card-body p-5 text-center">
+                <div class="mb-3">
+                    <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill">
+                        🤖 {{ t.ai_verified_screening }}
+                    </span>
+                </div>
+                <h2 class="mb-4">🏥 {{ t.your_risk_report }}</h2>
+                <div class="mb-4">
+                    <h6 class="text-muted text-uppercase fw-bold small">{{ t.overall_risk_score }}</h6>
+                    <h1 class="display-1 fw-bold
+                        {% if report.overall_score < 30 %}text-success
+                        {% elif report.overall_score < 60 %}text-warning
+                        {% else %}text-danger{% endif %}">
+                        {{ report.overall_score }}<small class="fs-2 text-muted">/100</small>
+                    </h1>
+                </div>
+
+                <div class="progress mb-4" style="height: 12px; border-radius: 6px;">
+                    <div class="progress-bar
+                        {% if report.overall_score < 30 %}bg-success
+                        {% elif report.overall_score < 60 %}bg-warning
+                        {% else %}bg-danger{% endif %}"
+                        style="width: {{ report.overall_score }}%">
+                    </div>
+                </div>
+
+                {% if report.ml_probability %}
+                <p class="text-muted small">
+                    <i class="bi bi-info-circle"></i> 
+                    This score was calculated using our <strong>Random Forest ML Engine</strong> with a confidence probability of {{ report.ml_probability|floatformat:2 }}.
+                </p>
+                {% endif %}
+
+                {% if report.refer_for_test %}
+                <div class="alert alert-danger bg-danger-subtle border-0 text-danger-emphasis">
+                    <div class="fw-bold mb-1">⚠️ {{ t.referral_recommended }}</div>
+                    {{ t.referral_msg }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Disease Risk Cards -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm
+                    {% if report.diabetes_risk == 'low' %}border-success
+                    {% elif report.diabetes_risk == 'moderate' %}border-warning
+                    {% else %}border-danger{% endif %}">
+                    <div class="card-body">
+                        <h6>🩸 {{ t.diabetes_risk }}</h6>
+                        <span class="badge fs-6
+                            {% if report.diabetes_risk == 'low' %}bg-success
+                            {% elif report.diabetes_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {% if report.diabetes_risk == 'low' %}{{ t.low }}{% elif report.diabetes_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm
+                    {% if report.hypertension_risk == 'low' %}border-success
+                    {% elif report.hypertension_risk == 'moderate' %}border-warning
+                    {% else %}border-danger{% endif %}">
+                    <div class="card-body">
+                        <h6>💉 {{ t.hypertension_risk }}</h6>
+                        <span class="badge fs-6
+                            {% if report.hypertension_risk == 'low' %}bg-success
+                            {% elif report.hypertension_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {% if report.hypertension_risk == 'low' %}{{ t.low }}{% elif report.hypertension_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center shadow-sm
+                    {% if report.heart_risk == 'low' %}border-success
+                    {% elif report.heart_risk == 'moderate' %}border-warning
+                    {% else %}border-danger{% endif %}">
+                    <div class="card-body">
+                        <h6>❤️ {{ t.heart_disease_risk }}</h6>
+                        <span class="badge fs-6
+                            {% if report.heart_risk == 'low' %}bg-success
+                            {% elif report.heart_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {% if report.heart_risk == 'low' %}{{ t.low }}{% elif report.heart_risk == 'moderate' %}{{ t.moderate }}{% else %}{{ t.high }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Trend Graph -->
+        {% if chart_html %}
+        <div class="card shadow mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">📈 {{ t.your_health_trend }}</h5>
+            </div>
+            <div class="card-body">
+                {{ chart_html|safe }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recommendation -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">📋 {{ t.recommendation }}</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">
+                    {% if report.overall_score < 30 %}{{ t.rec_low }}
+                    {% elif report.overall_score < 60 %}{{ t.rec_moderate }}
+                    {% else %}{{ t.rec_high }}{% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- Patient Info -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">👤 {{ t.your_profile }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <small class="text-muted">{{ t.age }}</small>
+                        <h5>{{ health_profile.age }} yrs</h5>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <small class="text-muted">{{ t.gender }}</small>
+                        <h5>{{ health_profile.gender|capfirst }}</h5>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <small class="text-muted">{{ t.weight }}</small>
+                        <h5>{{ health_profile.weight_kg }} kg</h5>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <small class="text-muted">{{ t.bmi }}</small>
+                        <h5>{{ health_profile.bmi }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="row">
+            <div class="col-md-6 d-grid">
+                <a href="{% url 'questionnaire' %}" class="btn btn-outline-success">
+                    🔄 {{ t.retake_questionnaire }}
+                </a>
+            </div>
+            <div class="col-md-6 d-grid">
+                <a href="{% url 'logout' %}" class="btn btn-outline-secondary">
+                    {{ t.logout }}
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

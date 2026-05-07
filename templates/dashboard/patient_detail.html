@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-3">
+    <div class="col">
+        <a href="{% url 'asha_dashboard' %}" class="btn btn-outline-secondary btn-sm">
+            {{ t.back_to_dashboard }}
+        </a>
+    </div>
+</div>
+
+<!-- Patient Info -->
+<div class="card shadow mb-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+            👤 {{ patient_profile.user.get_full_name }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <small class="text-muted">{{ t.phone }}</small>
+                <p>{{ patient_profile.phone }}</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">{{ t.village }}</small>
+                <p>{{ patient_profile.village }}</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">{{ t.district }}</small>
+                <p>{{ patient_profile.district }}</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">{{ t.state }}</small>
+                <p>{{ patient_profile.state }}</p>
+            </div>
+        </div>
+        {% if health_profile %}
+        <div class="row">
+            <div class="col-md-3">
+                <small class="text-muted">{{ t.age }}</small>
+                <p>{{ health_profile.age }} yrs</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">{{ t.gender }}</small>
+                <p>{{ health_profile.gender|capfirst }}</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">{{ t.weight }}</small>
+                <p>{{ health_profile.weight_kg }} kg</p>
+            </div>
+            <div class="col-md-3">
+                <small class="text-muted">{{ t.bmi }}</small>
+                <p>{{ health_profile.bmi }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Report History -->
+<h5 class="mb-3">{{ t.report_history }}</h5>
+{% if all_reports %}
+    {% for item in all_reports %}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-light d-flex justify-content-between">
+            <span>{{ item.questionnaire.submitted_at|date:"d M Y, h:i A" }}</span>
+            <span class="badge
+                {% if item.report.overall_score < 30 %}bg-success
+                {% elif item.report.overall_score < 60 %}bg-warning text-dark
+                {% else %}bg-danger{% endif %}">
+                {{ t.score }}: {{ item.report.overall_score }}/100
+            </span>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <small class="text-muted">{{ t.diabetes }}</small>
+                    <p>
+                        <span class="badge
+                            {% if item.report.diabetes_risk == 'low' %}bg-success
+                            {% elif item.report.diabetes_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {% if item.report.diabetes_risk == 'low' %}{{ t.low }}
+                            {% elif item.report.diabetes_risk == 'moderate' %}{{ t.moderate }}
+                            {% else %}{{ t.high }}{% endif %}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">{{ t.hypertension }}</small>
+                    <p>
+                        <span class="badge
+                            {% if item.report.hypertension_risk == 'low' %}bg-success
+                            {% elif item.report.hypertension_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {% if item.report.hypertension_risk == 'low' %}{{ t.low }}
+                            {% elif item.report.hypertension_risk == 'moderate' %}{{ t.moderate }}
+                            {% else %}{{ t.high }}{% endif %}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">{{ t.heart }}</small>
+                    <p>
+                        <span class="badge
+                            {% if item.report.heart_risk == 'low' %}bg-success
+                            {% elif item.report.heart_risk == 'moderate' %}bg-warning text-dark
+                            {% else %}bg-danger{% endif %}">
+                            {% if item.report.heart_risk == 'low' %}{{ t.low }}
+                            {% elif item.report.heart_risk == 'moderate' %}{{ t.moderate }}
+                            {% else %}{{ t.high }}{% endif %}
+                        </span>
+                    </p>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">{{ t.referral }}</small>
+                    <p>
+                        {% if item.report.refer_for_test %}
+                            <span class="badge bg-danger">⚠️ {{ t.required }}</span>
+                        {% else %}
+                            <span class="badge bg-success">{{ t.not_required }}</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+            <p class="text-muted small mb-0">
+                <strong>{{ t.recommendation }}:</strong>
+                {% if item.report.overall_score < 30 %}{{ t.rec_low }}
+                {% elif item.report.overall_score < 60 %}{{ t.rec_moderate }}
+                {% else %}{{ t.rec_high }}{% endif %}
+            </p>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="card shadow-sm">
+        <div class="card-body text-center text-muted py-4">
+            {{ t.no_reports }}
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

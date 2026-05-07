@@ -1,0 +1,176 @@
+"""
+Database models for the ArogyaCheck patient management system.
+Defines health profiles, assessment questionnaires, and risk reports.
+"""
+from django.db import models
+
+# Create your models here.
+from django.contrib.auth.models import User
+
+class HealthProfile(models.Model):
+    """
+    Stores basic physiological data for a patient.
+    One-to-One relationship with the User model.
+    """
+    GENDER_CHOICES = [
+        ('male', 'Male'),
+        ('female', 'Female'),
+        ('other', 'Other'),
+    ]
+
+    patient = models.OneToOneField(User, on_delete=models.CASCADE)
+    age = models.IntegerField()
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    weight_kg = models.FloatField()
+    height_cm = models.FloatField()
+
+    def bmi(self):
+        """Calculates and returns the Body Mass Index (BMI)."""
+        return round(self.weight_kg / ((self.height_cm / 100) ** 2), 2)
+    
+    def __str__(self):
+        return f"{self.patient.username} - Age {self.age}"
+    
+class Questionnaire(models.Model):
+    """
+    Stores a single health assessment submission.
+    Contains lifestyle data, symptoms, and family history.
+    """
+    ACTIVITY_CHOICES = [
+        ('none', 'No Physical Activity'),
+        ('light', 'Light(Walking occasionally)'),
+        ('moderate', 'Moderate (Exercise 3x/week)'),
+        ('heavy', 'Heavy (Daily intense exercise)'),
+    ]
+    DIET_CHOICES = [
+        ('vegetarian', 'Vegetarian'),
+        ('non_veg', 'Non Vegetarian'),
+        ('mixed', 'Mixed'),
+    ]
+
+    health_profile = models.ForeignKey(
+        HealthProfile,
+        on_delete=models.CASCADE,
+        related_name='questionnaires'
+    )
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    #Lifestyle
+    physical_activity = models.CharField(max_length=20, choices=ACTIVITY_CHOICES)
+    diet_type = models.CharField(max_length=20, choices=DIET_CHOICES)
+    smoking = models.BooleanField(default=False)
+    alcohol = models.BooleanField(default=False)
+    sleep_hours = models.IntegerField()
+
+    #Symptoms
+    frequent_thirst = models.BooleanField(default=False)
+    frequent_urination = models.BooleanField(default=False)
+    fatigue = models.BooleanField(default=False)
+    blurred_vision = models.BooleanField(default=False)
+    chest_pain = models.BooleanField(default=False)
+    shortness_of_breath = models.BooleanField(default=False)
+    numbness_in_feet = models.BooleanField(default=False)
+
+    #Family History
+    family_diabetes = models.BooleanField(default=False)
+    family_hypertension = models.BooleanField(default=False)
+    family_heart_disease = models.BooleanField(default=False)
+    family_kidney_disease = models.BooleanField(default=False)
+
+    #Existing Conditions
+    already_diabetic = models.BooleanField(default=False)
+    already_hypertensive = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.health_profile.patient.username} - {self.submitted_at.date()}"
+
+class RiskReport(models.Model):
+    """
+    Stores the results of the risk analysis engine.
+    Links to a specific Questionnaire and contains ML probabilities and risk levels.
+    """
+    RISK_LEVELS = [
+        ('low', 'Low'),
+        ('moderate', 'Moderate'),
+        ('high', 'High'),
+    ]
+
+    questionnaire = models.OneToOneField(
+        Questionnaire,
+        on_delete=models.CASCADE,
+        related_name='report'
+    )
+
+    generated_at = models.DateTimeField(auto_now_add=True)
+    overall_score = models.IntegerField()
+    ml_probability = models.FloatField(null=True, blank=True)
+    diabetes_risk = models.CharField(max_length=10, choices=RISK_LEVELS)
+    hypertension_risk = models.CharField(max_length=10, choices=RISK_LEVELS)
+    heart_risk = models.CharField(max_length=10, choices=RISK_LEVELS)
+    refer_for_test = models.BooleanField(default=False)
+    recommendation = models.TextField()
+    reviewed_by_doctor = models.BooleanField(default=False)
+    doctor_notes = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.questionnaire.health_profile.patient.username} - Score {self.overall_score}"
+    
+
+class AuditLog(models.Model):
+    """
+    Tracks critical system actions for medical compliance and traceability.
+    """
+    ACTION_CHOICES = [
+        ('register_patient', 'Registered Patient'),
+        ('submit_questionnaire', 'Submitted Questionnaire'),
+        ('mark_reviewed', 'Marked as Reviewed'),
+    ]
+    action = models.CharField(max_length=100, choices=ACTION_CHOICES)
+    performed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    patient = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                                related_name='audit_logs')
+    details = models.TextField(blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.performed_by} - {self.action} - {self.timestamp}"
+
+class RiskConfiguration(models.Model):
+    """
+    Stores dynamic weights for the heuristic risk engine.
+    Allows administrators to tune risk calculations without changing code.
+    """
+    name = models.CharField(max_length=100, default="Standard Protocol")
+    is_active = models.BooleanField(default=True)
+
+    # BMI Weights
+    bmi_obese_weight = models.IntegerField(default=20, help_text="Weight for BMI >= 35")
+    bmi_overweight_high = models.IntegerField(default=15, help_text="Weight for BMI >= 30")
+    bmi_overweight_low = models.IntegerField(default=10, help_text="Weight for BMI >= 25")
+
+    # Age Weights
+    age_elderly_weight = models.IntegerField(default=15, help_text="Weight for Age >= 60")
+    age_senior_weight = models.IntegerField(default=10, help_text="Weight for Age >= 45")
+    age_middle_weight = models.IntegerField(default=5, help_text="Weight for Age >= 35")
+
+    # Lifestyle
+    smoking_weight = models.IntegerField(default=10)
+    alcohol_weight = models.IntegerField(default=5)
+    inactivity_weight = models.IntegerField(default=10)
+    light_activity_weight = models.IntegerField(default=5)
+    sleep_deprivation_weight = models.IntegerField(default=5)
+
+    # Symptoms & History
+    symptom_weight = models.IntegerField(default=5, help_text="Weight per symptom reported")
+    family_history_weight = models.IntegerField(default=5, help_text="Weight per family condition")
+
+    # Existing Conditions
+    diabetes_existing_weight = models.IntegerField(default=10)
+    hypertension_existing_weight = models.IntegerField(default=10)
+
+    class Meta:
+        verbose_name = "Risk Configuration"
+        verbose_name_plural = "Risk Configurations"
+
+    def __str__(self):
+        return self.name
